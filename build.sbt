@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "io.ckite" % "ckite-core" % "0.2.1",
   "io.ckite" % "ckite-finagle" % "0.2.1",
-  "io.ckite" % "ckite-mapdb" % "0.2.1"
+  "io.ckite" % "ckite-mapdb" % "0.2.1",
+  "ch.qos.logback" % "logback-classic" % "1.2.3"
 )
