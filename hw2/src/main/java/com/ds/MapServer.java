@@ -9,12 +9,11 @@ import io.atomix.copycat.server.storage.Storage;
 import io.atomix.copycat.server.storage.StorageLevel;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 
-public class Follower {
+public class MapServer {
     public static void main(String[] args) {
-        Address address = new Address("127.0.0.1", Integer.parseInt(args[0]));
+        Address address = new Address("127.0.0.1", 5000);
         CopycatServer server = CopycatServer.builder(address)
                 .withStateMachine(MapStateMachine::new)
                 .withTransport(NettyTransport.builder()
@@ -27,7 +26,9 @@ public class Follower {
                 .build();
         server.serializer().register(PutCommand.class);
         server.serializer().register(GetQuery.class);
-        Collection<Address> cluster = Collections.singleton(new Address("127.0.0.1", 5000));
-        server.join(cluster).join();
+
+        CompletableFuture<CopycatServer> future = server.bootstrap();
+        future.join();
+
     }
 }

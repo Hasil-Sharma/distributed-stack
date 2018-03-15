@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
-public class Client {
+public class MapClient {
     public static void main(String[] args) {
         CopycatClient client = CopycatClient.builder()
                 .withTransport(NettyTransport.builder()
