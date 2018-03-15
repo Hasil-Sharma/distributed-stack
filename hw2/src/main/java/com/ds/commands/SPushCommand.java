@@ -2,7 +2,7 @@ package com.ds.commands;
 
 import io.atomix.copycat.Command;
 
-public class SPushCommand implements Command<Object> {
+public class SPushCommand implements Command<FTStackResult> {
     private final Object stackId;
     private final Object item;
 
