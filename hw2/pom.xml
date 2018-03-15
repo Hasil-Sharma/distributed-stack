@@ -21,9 +21,48 @@
                 <version>1.2.1</version>
                 <executions>
                     <execution>
+                        <id>
+                            leader
+                        </id>
                         <goals>
                             <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <mainClass>
+                                com.ds.FTStackServer
+                            </mainClass>
+                            <arguments>
+                                <argument>5000</argument>
+                                <argument>true</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>
+                            follower
+                        </id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>
+                                com.ds.FTStackServer
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>
+                            client
+                        </id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>
+                                com.ds.FTStackClient
+                            </mainClass>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

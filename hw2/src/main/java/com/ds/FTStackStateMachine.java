@@ -1,88 +1,79 @@
 package com.ds;
 
 import com.ds.commands.*;
-import io.atomix.copycat.Command;
 import io.atomix.copycat.server.Commit;
 import io.atomix.copycat.server.Snapshottable;
 import io.atomix.copycat.server.StateMachine;
 import io.atomix.copycat.server.storage.snapshot.SnapshotReader;
 import io.atomix.copycat.server.storage.snapshot.SnapshotWriter;
+import org.slf4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import static org.slf4j.LoggerFactory.getLogger;
 
-public class FTStackStateMachine extends StateMachine implements Snapshottable{
-    private Map<Object, Stack<Object>> stackIdStackMap = new HashMap<>();
-    private Map<Object, Object> labelStackIdMap = new HashMap<>();
-
-    public Object sCreate(Commit<SCreateCommand> commit){
+public class FTStackStateMachine extends StateMachine implements Snapshottable {
+    private FTStack ftStack = new FTStack();
+    private final Logger log = getLogger(getClass());
+    public Object sCreate(Commit<SCreateCommand> commit) {
         try {
-            Object label = commit.operation().getLabel();
-            labelStackIdMap.put(label, label); // adding label and stack id
-            stackIdStackMap.put(label, new Stack<>()); // adding a new stack corresponding to stack id
-            return label;
+            return ftStack.sCreate(commit.operation().getLabel());
 
         } finally {
             commit.close();
         }
     }
 
-    public Object sId(Commit<SIdCommand> commit){
+    public Object sId(Commit<SIdCommand> commit) {
         try {
-            Object label = commit.operation().getLabel();
-            return labelStackIdMap.getOrDefault(label, null);
-        } finally {
-            commit.close();
-        }
-    }
-    public void sPush(Commit<SPushCommand> commit){
-        try {
-            Object key = commit.operation().getStackId();
-            Stack<Object> stack = stackIdStackMap.getOrDefault(key, null);
-            if (stack != null) stack.push(commit.operation().getItem());
+            return ftStack.sId(commit.operation().getLabel());
         } finally {
             commit.close();
         }
     }
 
-    public Object sPop(Commit<SPopCommand> commit){
+    public void sPush(Commit<SPushCommand> commit) {
         try {
-            Object key = commit.operation().getStackId();
-            Stack<Object> stack = stackIdStackMap.getOrDefault(key, null);
-            return (stack != null) ? stack.pop() : null;
+            ftStack.sPush(commit.operation().getStackId(), commit.operation().getItem());
         } finally {
             commit.close();
         }
     }
 
-    public Object sTop(Commit<STopCommand> commit){
+    public Object sPop(Commit<SPopCommand> commit) {
         try {
-            Object key = commit.operation().getStackId();
-            Stack<Object> stack = stackIdStackMap.getOrDefault(key, null);
-            return (stack != null) ? stack.peek() : null;
+            log.info("In sPop method: Element to pop: " + ftStack.sTop(commit.operation().getStackId()));
+            Object poppedItem = ftStack.sPop(commit.operation().getStackId());
+            log.info("In sPop method: Element popped: " + poppedItem);
+            return poppedItem;
+
         } finally {
             commit.close();
         }
     }
 
-    public Object sSize(Commit<SSizeCommand> commit){
+    public Object sTop(Commit<STopCommand> commit) {
         try {
-            Object key = commit.operation().getStackId();
-            Stack<Object> stack = stackIdStackMap.getOrDefault(key, null);
-            return (stack != null) ? stack.size() : null;
+            return ftStack.sTop(commit.operation().getStackId());
         } finally {
             commit.close();
         }
     }
+
+    public Object sSize(Commit<SSizeCommand> commit) {
+        try {
+            return ftStack.sSize(commit.operation().getStackId());
+        } finally {
+            commit.close();
+        }
+    }
+
     @Override
     public void snapshot(SnapshotWriter writer) {
-        writer.writeObject(stackIdStackMap);
+        writer.writeObject(ftStack);
     }
 
 
     @Override
     public void install(SnapshotReader reader) {
-        stackIdStackMap = reader.readObject();
+        ftStack = reader.readObject();
     }
 }
