@@ -2,7 +2,7 @@ package com.ds.commands;
 
 import io.atomix.copycat.Query;
 
-public class STopCommand implements Query<Object> {
+public class STopCommand implements Query<FTStackResult> {
     private final Object stackId;
 
     public STopCommand(Object stackId) {

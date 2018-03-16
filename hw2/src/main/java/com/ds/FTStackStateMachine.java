@@ -30,9 +30,9 @@ public class FTStackStateMachine extends StateMachine implements Snapshottable {
         }
     }
 
-    public void sPush(Commit<SPushCommand> commit) {
+    public Object sPush(Commit<SPushCommand> commit) {
         try {
-            ftStack.sPush(commit.operation().getStackId(), commit.operation().getItem());
+            return ftStack.sPush(commit.operation().getStackId(), commit.operation().getItem());
         } finally {
             commit.close();
         }

@@ -41,6 +41,8 @@ public class FTStackServer {
         server.serializer().register(SPopCommand.class);
         server.serializer().register(STopCommand.class);
         server.serializer().register(SSizeCommand.class);
+        server.serializer().register(FTStackResult.class);
+
 
         if (bootStrap) {
             CompletableFuture<CopycatServer> future = server.bootstrap();
