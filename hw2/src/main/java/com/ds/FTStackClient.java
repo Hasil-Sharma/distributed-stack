@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -34,110 +35,67 @@ public class FTStackClient {
                 new Address("127.0.0.1", 5000),
                 new Address("127.0.0.1", 5001),
                 new Address("127.0.0.1", 5002),
-                new Address("127.0.0.1", 5003)
+                new Address("127.0.0.1", 5003),
+                new Address("127.0.0.1", 5004)
         );
 
         CompletableFuture<CopycatClient> future = client.connect(cluster);
         future.join();
 
-        // Making two stacks
-//        Object stackId1 = 10, stackId2 = 20;
+        Scanner in = new Scanner(System.in);
+        while (true) {
+            System.out.println("\tEnter the operation number you want to execute:");
+            System.out.println("=> Create a stack : 1");
+            System.out.println("=> Get label of stack given id : 2");
+            System.out.println("=> Pop the stack of given id : 3");
+            System.out.println("=> Push the element on stack given id : 4");
+            System.out.println("=> Get size of stack given id : 5");
+            System.out.println("=> Get top element of stack given id : 6");
+            System.out.println("=> Exit : 7");
 
-        FTStackResult stackIdResult1 = client.submit(new SCreateCommand(10)).join();
-        log.info("Created Stack with id: " + stackIdResult1);
-        Object stackId1 = stackIdResult1.getResult();
+            int command = in.nextInt();
 
-        FTStackResult stackIdResult2 = client.submit(new SCreateCommand(20)).join();
-        log.info("Created Stack with id: " + stackIdResult2);
-        Object stackId2 = stackIdResult2.getResult();
+            FTStackResult ftStackResult;
+            String outputString;
+            if (command == 1) {
+                System.out.println("Enter the label of the stack: ");
+                int label = in.nextInt();
+                ftStackResult = client.submit(new SCreateCommand(label)).join();
+                outputString = "<= Created stack with id: ";
+            } else if (command == 2) {
+                System.out.println("Enter the id of the stack: ");
+                int id = in.nextInt();
+                ftStackResult = client.submit(new SIdCommand(id)).join();
+                outputString = "<= Label of the stack is: ";
+            } else if (command == 3) {
+                System.out.println("Enter the id of the stack: ");
+                int id = in.nextInt();
+                ftStackResult = client.submit(new SPopCommand(id)).join();
+                outputString = "<= Popped element from stack is: ";
+            } else if (command == 4) {
+                System.out.println("Enter the id of the stack: ");
+                int id = in.nextInt();
+                System.out.println("Enter the element to push: ");
+                int element = in.nextInt();
+                ftStackResult = client.submit(new SPushCommand(id, element)).join();
+                outputString = "<= Element pushed on to stack: ";
+            } else if (command == 5) {
+                System.out.println("Enter the id of the stack: ");
+                int id = in.nextInt();
+                ftStackResult = client.submit(new SSizeCommand(id)).join();
+                outputString = "<= Size of the stack is: ";
+            } else if (command == 6) {
+                System.out.println("Enter the id of the stack: ");
+                int id = in.nextInt();
+                ftStackResult = client.submit(new STopCommand(id)).join();
+                outputString = "<= Top of the stack is: ";
+            } else break;
 
-        // Checking label corresponding to stackId(s)
-        FTStackResult label1 = client.submit(new SIdCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has label: " + label1);
-
-        FTStackResult label2 = client.submit(new SIdCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has label: " + label2);
-
-         // Pushing elements on stack
-        client.submit(new SPushCommand(stackId1, 123)).join();
-        log.info("Pushed 123 on stack with id: " + stackId1);
-
-        client.submit(new SPushCommand(stackId2, 345)).join();
-        log.info("Pushed 345 on stack with id: " + stackId2);
-
-
-        // Getting top elements on stack
-        FTStackResult top1 = client.submit(new STopCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has top element: " + top1);
-
-        FTStackResult top2 = client.submit(new STopCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has top element: " + top2);
-
-
-        // Pushing more elements on top
-        client.submit(new SPushCommand(stackId1, 124)).join();
-        log.info("Pushed 124 on stack with id: " + stackId1);
-
-        top1 = client.submit(new STopCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has top element: " + top1);
-
-        client.submit(new SPushCommand(stackId2, 346)).join();
-        log.info("Pushed 346 on stack with id: " + stackId2);
-
-        top2 = client.submit(new STopCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has top element: " + top2);
-
-        // Checking size of the stack
-
-        FTStackResult size1 = client.submit(new SSizeCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has size: " + size1);
-
-        FTStackResult size2 = client.submit(new SSizeCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has size: " + size2);
-
-        // Popping Elements of the stack
-
-        FTStackResult pop1 = client.submit(new SPopCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " popped element: " + pop1);
-
-        FTStackResult pop2 = client.submit(new SPopCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " popped element: " + pop2);
-
-        // Checking size of the stacks
-
-        size1 = client.submit(new SSizeCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has size: " + size1);
-
-        size2 = client.submit(new SSizeCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has size: " + size2);
-
-        // Checking the top elements in stacks
-
-        top1 = client.submit(new STopCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has top element: " + top1);
-
-        top2 = client.submit(new STopCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has top element: " + top2);
-
-        // Popping again
-
-        pop1 = client.submit(new SPopCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " popped element: " + pop1);
-
-        pop2 = client.submit(new SPopCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " popped element: " + pop2);
-
-
-        // Checking the top elements in stacks
-
-        top1 = client.submit(new STopCommand(stackId1)).join();
-        log.info("Stack with id " + stackId1 + " has top element: " + top1);
-
-        top2 = client.submit(new STopCommand(stackId2)).join();
-        log.info("Stack with id " + stackId2 + " has top element: " + top2);
-
-        stackIdResult1 = client.submit(new SCreateCommand(10)).join();
-        log.info("Created Stack with id: " + stackIdResult1);
+            if (ftStackResult.getError())
+                System.out.println(ftStackResult.getErrorString());
+            else
+                System.out.println(outputString + ftStackResult.getResult());
+        }
 
         client.close();
 

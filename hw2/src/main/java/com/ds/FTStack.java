@@ -28,9 +28,14 @@ public class FTStack implements Serializable {
                 + label + " does not exist");
     }
 
-    public void sPush(Object stackId, Object item) {
+    public FTStackResult sPush(Object stackId, Object item) {
         Stack<Object> stack = stackIdStackMap.getOrDefault(stackId, null);
-        if (stack != null) stack.push(item);
+        if (stack != null) {
+            stack.push(item);
+            return new FTStackResult(item);
+        } else {
+            return new FTStackResult(true, "Stack with id: " + stackId + " does not exist");
+        }
     }
 
     public FTStackResult sPop(Object stackId) {
@@ -42,7 +47,7 @@ public class FTStack implements Serializable {
                 return new FTStackResult(true, "Stack with id: " + stackId + " cannot be popped (Size = 0)");
             }
         } else {
-            return new FTStackResult(true, "Stack with id: " + stackId + " do not exist");
+            return new FTStackResult(true, "Stack with id: " + stackId + " does not exist");
         }
     }
 
@@ -55,7 +60,7 @@ public class FTStack implements Serializable {
                 return new FTStackResult(true, "Stack with id: " + stackId + " has no top element (Size = 0)");
             }
         } else {
-            return new FTStackResult(true, "Stack with id: " + stackId + " do not exist");
+            return new FTStackResult(true, "Stack with id: " + stackId + " does not exist");
         }
     }
 
@@ -64,7 +69,7 @@ public class FTStack implements Serializable {
         if (stack != null) {
             return new FTStackResult(stack.size());
         } else {
-            return new FTStackResult(true, "Stack with id: " + stackId + "do not exist");
+            return new FTStackResult(true, "Stack with id: " + stackId + "does not exist");
         }
     }
 }
